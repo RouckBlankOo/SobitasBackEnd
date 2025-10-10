@@ -15,6 +15,17 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { CommunicationModule } from './communication/communication.module';
 import { ServicesModule } from './services/services.module';
 import { OrdersModule } from './orders/orders.module';
+import { EventsModule } from './events/events.module';
+
+// Content Modules
+import { CategoriesModule } from './categories/categories.module';
+import { BrandsModule } from './brands/brands.module';
+import { SubcategoriesModule } from './subcategories/subcategories.module';
+import { AromasModule } from './aromas/aromas.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { BlogsModule } from './blogs/blogs.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
+import { PagesModule } from './pages/pages.module';
 
 @Module({
   imports: [
@@ -59,6 +70,17 @@ import { OrdersModule } from './orders/orders.module';
     CommunicationModule,
     ServicesModule,
     OrdersModule,
+    EventsModule,
+    
+    // Content modules
+    CategoriesModule,
+    BrandsModule,
+    SubcategoriesModule,
+    AromasModule,
+    ReviewsModule,
+    BlogsModule,
+    NewsletterModule,
+    PagesModule,
   ],
 })
 export class AppModule {}

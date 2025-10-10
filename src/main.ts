@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -9,6 +10,9 @@ async function bootstrap() {
   
   const logger = new Logger('Bootstrap');
   
+  // Enable cookie parser middleware
+  app.use(cookieParser());
+  
   // CORS configuration for multiple frontends
   app.enableCors({
     origin: [
@@ -16,10 +20,14 @@ async function bootstrap() {
       process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3001',
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://localhost:8080', // Vite dev server
+      'https://admin.protein.tn',
+      'https://protein.tn',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
   });
   
   // Global validation pipe

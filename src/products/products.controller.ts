@@ -11,10 +11,14 @@ import {
   Patch,
   HttpStatus,
   UseInterceptors,
-  UploadedFiles
+  UploadedFiles,
+  Headers,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -25,7 +29,10 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // Public endpoints for e-commerce frontend
   @Get()
@@ -149,10 +156,74 @@ export class ProductsController {
   async getAllForAdmin() {
     const result = await this.productsService.findAll({ limit: 1000 });
     return result.products.map(product => ({
-      _id: product._id || product.id,
+      _id: (product as any)._id || (product as any).id,
       designation_fr: product.designation_fr || product.designation || product.title,
       name: product.name || product.title,
       slug: product.slug
     }));
+  }
+
+  // ISR Revalidation endpoint
+  @Post('revalidate')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Trigger ISR revalidation for Next.js frontends (Admin only)' })
+  async triggerRevalidation(
+    @Body('productId') productId: string,
+    @Body('secret') secret: string,
+    @Headers('x-revalidate-secret') headerSecret: string,
+  ) {
+    // Verify secret from body or header
+    const revalidateSecret = this.configService.get('REVALIDATE_SECRET');
+    
+    if (!revalidateSecret) {
+      throw new BadRequestException('Revalidation secret not configured');
+    }
+
+    if (secret !== revalidateSecret && headerSecret !== revalidateSecret) {
+      throw new UnauthorizedException('Invalid revalidation secret');
+    }
+
+    if (!productId) {
+      throw new BadRequestException('Product ID is required');
+    }
+
+    const product = await this.productsService.findOne(productId);
+    
+    // Call Next.js revalidation endpoints
+    await this.revalidateNextJS(product.slug);
+    
+    return { 
+      revalidated: true, 
+      slug: product.slug,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  // Private helper to call Next.js revalidation
+  private async revalidateNextJS(slug: string) {
+    const revalidateSecret = this.configService.get('REVALIDATE_SECRET');
+    const adminUrl = this.configService.get('ADMIN_FRONTEND_URL');
+    const ecommerceUrl = this.configService.get('ECOMMERCE_FRONTEND_URL');
+
+    const urls = [
+      `${adminUrl}/api/revalidate?secret=${revalidateSecret}&path=/products/${slug}`,
+      `${ecommerceUrl}/api/revalidate?secret=${revalidateSecret}&path=/products/${slug}`,
+      `${ecommerceUrl}/api/revalidate?secret=${revalidateSecret}&path=/products`,
+    ].filter(url => url && !url.includes('undefined'));
+    
+    const results = await Promise.allSettled(
+      urls.map(url => 
+        fetch(url, { 
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(err => {
+          console.error(`Failed to revalidate ${url}:`, err.message);
+          return null;
+        })
+      )
+    );
+
+    return results;
   }
 }

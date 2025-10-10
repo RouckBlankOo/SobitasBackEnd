@@ -1,21 +1,29 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/product-filter.dto';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
+    @Inject(forwardRef(() => EventsGateway))
+    private eventsGateway: EventsGateway,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
     try {
       const createdProduct = new this.productModel(createProductDto);
-      return await createdProduct.save();
+      const savedProduct = await createdProduct.save();
+      
+      // Emit WebSocket event
+      this.eventsGateway.emitProductCreated(savedProduct);
+      
+      return savedProduct;
     } catch (error) {
       if (error.code === 11000) {
         throw new BadRequestException('Product with this slug already exists');
@@ -103,6 +111,9 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
     
+    // Emit WebSocket event
+    this.eventsGateway.emitProductUpdated(updatedProduct);
+    
     return updatedProduct;
   }
 
@@ -111,6 +122,9 @@ export class ProductsService {
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
+    
+    // Emit WebSocket event
+    this.eventsGateway.emitProductDeleted(id);
   }
 
   async updateStock(id: string, quantity: number): Promise<Product> {
@@ -128,6 +142,9 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
+    
+    // Emit WebSocket event for stock update
+    this.eventsGateway.emitStockUpdate(id, product.stock);
     
     return product;
   }

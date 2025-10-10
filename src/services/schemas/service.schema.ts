@@ -20,7 +20,7 @@ export class ServiceItem {
   @Prop()
   icon?: string;
 
-  @Prop()
+  @Prop({ type: Object })
   image?: {
     url: string;
     alt?: string;

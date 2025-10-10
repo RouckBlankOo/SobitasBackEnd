@@ -1,0 +1,71 @@
+version: '3.8'
+
+# Development docker-compose with hot reload
+
+services:
+  # NestJS API - Development
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: sobitas-api-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/sobitas-db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev-secret-key-change-in-production
+      - JWT_REFRESH_SECRET=dev-refresh-secret-key
+      - ADMIN_FRONTEND_URL=http://localhost:3000
+      - ECOMMERCE_FRONTEND_URL=http://localhost:8080
+      - REVALIDATE_SECRET=dev-revalidate-secret
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - sobitas-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    command: npm run start:dev
+
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    container_name: sobitas-mongo-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=sobitas-db
+    volumes:
+      - mongo-dev-data:/data/db
+    networks:
+      - sobitas-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: sobitas-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - sobitas-network
+
+volumes:
+  mongo-dev-data:
+    driver: local
+  redis-dev-data:
+    driver: local
+
+networks:
+  sobitas-network:
+    driver: bridge
+

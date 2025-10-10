@@ -38,16 +38,13 @@ export class Product {
   @Prop()
   meta_description_fr?: string;
 
-  @Prop()
+  @Prop({ type: Object })
   mainImage?: {
     url: string;
     alt?: string;
   };
 
-  @Prop([{
-    url: String,
-    alt: String,
-  }])
+  @Prop({ type: [Object] })
   images?: Array<{
     url: string;
     alt?: string;
@@ -83,12 +80,7 @@ export class Product {
   @Prop()
   venteflashDate?: Date;
 
-  @Prop([{
-    rating: Number,
-    user_id: String,
-    comment: String,
-    date: { type: Date, default: Date.now },
-  }])
+  @Prop({ type: [Object] })
   reviews?: Array<{
     rating: number;
     user_id: string;
