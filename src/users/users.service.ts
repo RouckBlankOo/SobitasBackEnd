@@ -71,5 +71,97 @@ export class UsersService {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
   }
+
+  // Wishlist methods
+  async getWishlist(userId: string): Promise<any> {
+    const user = await this.userModel
+      .findById(userId)
+      .populate('wishlist')
+      .exec();
+    
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+    
+    return user.wishlist || [];
+  }
+
+  async addToWishlist(userId: string, productId: string): Promise<any> {
+    const user = await this.userModel.findById(userId).exec();
+    
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    // Check if product already in wishlist
+    if (user.wishlist && user.wishlist.some(id => id.toString() === productId)) {
+      return { message: 'Product already in wishlist', wishlist: user.wishlist };
+    }
+
+    // Add product to wishlist
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $addToSet: { wishlist: productId } },
+        { new: true }
+      )
+      .populate('wishlist')
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    return { 
+      message: 'Product added to wishlist', 
+      wishlist: updatedUser.wishlist 
+    };
+  }
+
+  async removeFromWishlist(userId: string, productId: string): Promise<any> {
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $pull: { wishlist: productId } },
+        { new: true }
+      )
+      .populate('wishlist')
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    return { 
+      message: 'Product removed from wishlist', 
+      wishlist: updatedUser.wishlist || [] 
+    };
+  }
+
+  async clearWishlist(userId: string): Promise<any> {
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: { wishlist: [] } },
+        { new: true }
+      )
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    return { message: 'Wishlist cleared', wishlist: [] };
+  }
+
+  async isInWishlist(userId: string, productId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).exec();
+    
+    if (!user || !user.wishlist) {
+      return false;
+    }
+
+    return user.wishlist.some(id => id.toString() === productId);
+  }
 }
 

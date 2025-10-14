@@ -26,6 +26,9 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { PagesModule } from './pages/pages.module';
+import { SeedModule } from './database/seeds/seed.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -35,8 +38,30 @@ import { PagesModule } from './pages/pages.module';
       envFilePath: ['.env', '.env.local'],
     }),
     
-    // Database
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/sobitas-db'),
+    // Database with connection logging
+    MongooseModule.forRootAsync({
+      useFactory: async () => {
+        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sobitas-db';
+        console.log('🔌 Connecting to MongoDB:', uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@')); // Hide password in logs
+        return {
+          uri,
+          retryAttempts: 3,
+          retryDelay: 1000,
+          connectionFactory: (connection) => {
+            connection.on('connected', () => {
+              console.log('✅ MongoDB connected successfully');
+            });
+            connection.on('error', (error) => {
+              console.error('❌ MongoDB connection error:', error.message);
+            });
+            connection.on('disconnected', () => {
+              console.log('⚠️  MongoDB disconnected');
+            });
+            return connection;
+          },
+        };
+      },
+    }),
     
     // Rate limiting
     ThrottlerModule.forRoot({
@@ -81,6 +106,11 @@ import { PagesModule } from './pages/pages.module';
     BlogsModule,
     NewsletterModule,
     PagesModule,
+    
+    // Database seeding
+    SeedModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

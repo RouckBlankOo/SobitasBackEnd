@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
@@ -65,14 +65,17 @@ export class Product {
   @Prop([String])
   aroma_ids?: string[];
 
-  @Prop()
-  brand?: string;
+  // Support both ObjectId reference and string for backward compatibility
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Brand' })
+  brand?: Types.ObjectId;
 
-  @Prop()
-  category?: string;
+  // Support both ObjectId reference and string for backward compatibility
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category' })
+  category?: Types.ObjectId;
 
-  @Prop([String])
-  subCategory?: string[];
+  // Support both ObjectId references and strings for backward compatibility
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Subcategory' }] })
+  subCategory?: Types.ObjectId[];
 
   @Prop({ default: false })
   isFlashSale: boolean;
@@ -131,8 +134,7 @@ export class Product {
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
-// Add indexes for better performance
-ProductSchema.index({ slug: 1 });
+// Add indexes for better performance (slug index already created by unique: true)
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ brand: 1 });
 ProductSchema.index({ title: 'text', description: 'text' });

@@ -20,5 +20,5 @@ export class Newsletter {
 
 export const NewsletterSchema = SchemaFactory.createForClass(Newsletter);
 
-NewsletterSchema.index({ email: 1 });
+// Email index already created by unique: true
 

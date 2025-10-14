@@ -50,7 +50,6 @@ export class Category {
 
 export const CategorySchema = SchemaFactory.createForClass(Category);
 
-// Index for faster queries
-CategorySchema.index({ slug: 1 });
+// Index for faster queries (slug index already created by unique: true)
 CategorySchema.index({ active: 1, order: 1 });
 

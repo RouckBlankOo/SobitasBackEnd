@@ -41,6 +41,6 @@ export class Subcategory {
 
 export const SubcategorySchema = SchemaFactory.createForClass(Subcategory);
 
-SubcategorySchema.index({ slug: 1 });
+// Index for faster queries (slug index already created by unique: true)
 SubcategorySchema.index({ categoryId: 1, active: 1 });
 

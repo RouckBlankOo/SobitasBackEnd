@@ -16,10 +16,11 @@ async function bootstrap() {
   // CORS configuration for multiple frontends
   app.enableCors({
     origin: [
-      process.env.ADMIN_FRONTEND_URL || 'http://localhost:3000',
-      process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3001',
-      'http://localhost:3000',
-      'http://localhost:3001',
+      process.env.ADMIN_FRONTEND_URL || 'http://localhost:3001',
+      process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3000',
+      'http://localhost:3000', // Admin Dashboard
+      'http://localhost:3001', // Old Vite frontend
+      'http://localhost:3002', // Next.js E-commerce frontend
       'http://localhost:8080', // Vite dev server
       'https://admin.protein.tn',
       'https://protein.tn',

@@ -60,6 +60,24 @@ export class ProductsController {
     return this.productsService.searchProducts(query, limit || 10);
   }
 
+  @Get('category/:categorySlug')
+  @ApiOperation({ summary: 'Get products by category slug' })
+  async getProductsByCategory(
+    @Param('categorySlug') categorySlug: string,
+    @Query() filters: ProductFilterDto
+  ) {
+    return this.productsService.getProductsByCategory(categorySlug, filters);
+  }
+
+  @Get('subcategory/:subcategorySlug')
+  @ApiOperation({ summary: 'Get products by subcategory slug' })
+  async getProductsBySubcategory(
+    @Param('subcategorySlug') subcategorySlug: string,
+    @Query() filters: ProductFilterDto
+  ) {
+    return this.productsService.getProductsBySubcategory(subcategorySlug, filters);
+  }
+
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get product by slug' })
   async findBySlug(@Param('slug') slug: string) {

@@ -84,4 +84,37 @@ export class AuthController {
   async validate(@Request() req) {
     return this.authService.validateUser(req.user.userId);
   }
+
+  @Post('register')
+  async register(
+    @Body() createUserDto: any,
+    @Res({ passthrough: true }) response: ExpressResponse,
+  ) {
+    const { access_token, refresh_token, user } = await this.authService.register(createUserDto);
+    
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    // Set access token cookie
+    response.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+    
+    // Set refresh token cookie
+    response.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    
+    return {
+      access_token,
+      user,
+    };
+  }
 }
