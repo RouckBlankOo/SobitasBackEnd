@@ -9,8 +9,14 @@ export class CommunicationController {
   constructor(private readonly communicationService: CommunicationService) {}
 
   @Post('email')
-  async sendEmail(@Body() body: { to: string; subject: string; content: string }) {
-    return this.communicationService.sendEmail(body.to, body.subject, body.content);
+  async sendEmail(
+    @Body() body: { to: string; subject: string; content: string },
+  ) {
+    return this.communicationService.sendEmail(
+      body.to,
+      body.subject,
+      body.content,
+    );
   }
 
   @Post('sms')
@@ -18,4 +24,3 @@ export class CommunicationController {
     return this.communicationService.sendSMS(body.phone, body.message);
   }
 }
-

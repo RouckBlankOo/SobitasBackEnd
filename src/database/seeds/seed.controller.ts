@@ -43,8 +43,7 @@ export class SeedController {
         products: 'POST /seed/products',
         categories: 'POST /seed/categories',
         brands: 'POST /seed/brands',
-      }
+      },
     };
   }
 }
-

@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -56,12 +56,12 @@ export class BlogsController {
   @UseInterceptors(FileInterceptor('image'))
   async createWithFile(
     @Body() createBlogDto: CreateBlogDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       createBlogDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.blogsService.create(createBlogDto);
@@ -83,12 +83,12 @@ export class BlogsController {
   async updateWithFile(
     @Param('id') id: string,
     @Body() updateBlogDto: UpdateBlogDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       updateBlogDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.blogsService.update(id, updateBlogDto);
@@ -111,4 +111,3 @@ export class BlogsController {
     return { message: 'Blog deleted successfully' };
   }
 }
-

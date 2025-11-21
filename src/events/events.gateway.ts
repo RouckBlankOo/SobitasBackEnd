@@ -4,7 +4,6 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
-  MessageBody,
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -13,11 +12,12 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway({
   cors: {
     origin: [
-      process.env.ADMIN_FRONTEND_URL || 'http://localhost:3000',
-      process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3001',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:8080',
+      process.env.ADMIN_FRONTEND_URL || 'http://localhost:3001',
+      process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3002',
+      'http://localhost:3001', // Dashboard Admin (Next.js)
+      'http://localhost:3002', // E-commerce frontend (Next.js sobitas_next-main)
+      'http://localhost:3000', // SobitasProject (Vite)
+      'http://localhost:8080', // Alternative Vite dev server
       'https://admin.protein.tn',
       'https://protein.tn',
     ],
@@ -80,42 +80,53 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('order:updated', { orderId, status, data: order });
   }
 
-  emitOrderStatusChanged(orderId: string, oldStatus: string, newStatus: string) {
-    this.logger.log(`Order ${orderId} status changed: ${oldStatus} -> ${newStatus}`);
+  emitOrderStatusChanged(
+    orderId: string,
+    oldStatus: string,
+    newStatus: string,
+  ) {
+    this.logger.log(
+      `Order ${orderId} status changed: ${oldStatus} -> ${newStatus}`,
+    );
     this.server.emit('order:status_changed', { orderId, oldStatus, newStatus });
   }
 
   // General notification event
   emitNotification(type: string, message: string, data?: any) {
     this.logger.log(`Emitting notification: ${type}`);
-    this.server.emit('notification', { type, message, data, timestamp: new Date() });
+    this.server.emit('notification', {
+      type,
+      message,
+      data,
+      timestamp: new Date(),
+    });
   }
 
   // Subscriber management
   @SubscribeMessage('subscribe:products')
   handleSubscribeProducts(@ConnectedSocket() client: Socket) {
-    client.join('products');
+    void client.join('products');
     this.logger.log(`Client ${client.id} subscribed to products`);
     return { event: 'subscribed', channel: 'products' };
   }
 
   @SubscribeMessage('subscribe:orders')
   handleSubscribeOrders(@ConnectedSocket() client: Socket) {
-    client.join('orders');
+    void client.join('orders');
     this.logger.log(`Client ${client.id} subscribed to orders`);
     return { event: 'subscribed', channel: 'orders' };
   }
 
   @SubscribeMessage('unsubscribe:products')
   handleUnsubscribeProducts(@ConnectedSocket() client: Socket) {
-    client.leave('products');
+    void client.leave('products');
     this.logger.log(`Client ${client.id} unsubscribed from products`);
     return { event: 'unsubscribed', channel: 'products' };
   }
 
   @SubscribeMessage('unsubscribe:orders')
   handleUnsubscribeOrders(@ConnectedSocket() client: Socket) {
-    client.leave('orders');
+    void client.leave('orders');
     this.logger.log(`Client ${client.id} unsubscribed from orders`);
     return { event: 'unsubscribed', channel: 'orders' };
   }
@@ -133,4 +144,3 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     };
   }
 }
-

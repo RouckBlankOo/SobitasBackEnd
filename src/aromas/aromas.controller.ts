@@ -1,12 +1,12 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
-  UseGuards
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AromasService } from './aromas.service';
@@ -50,7 +50,10 @@ export class AromasController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update aroma (Admin only)' })
-  async update(@Param('id') id: string, @Body() updateAromaDto: UpdateAromaDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateAromaDto: UpdateAromaDto,
+  ) {
     return this.aromasService.update(id, updateAromaDto);
   }
 
@@ -63,4 +66,3 @@ export class AromasController {
     return { message: 'Aroma deleted successfully' };
   }
 }
-

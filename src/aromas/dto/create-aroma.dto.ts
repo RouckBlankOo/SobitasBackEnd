@@ -24,4 +24,3 @@ export class CreateAromaDto {
   @IsOptional()
   products?: string[];
 }
-

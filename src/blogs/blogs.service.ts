@@ -7,9 +7,7 @@ import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Injectable()
 export class BlogsService {
-  constructor(
-    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-  ) {}
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
   async create(createBlogDto: CreateBlogDto): Promise<Blog> {
     const createdBlog = new this.blogModel(createBlogDto);
@@ -21,7 +19,10 @@ export class BlogsService {
   }
 
   async findPublished(): Promise<Blog[]> {
-    return this.blogModel.find({ published: true }).sort({ createdAt: -1 }).exec();
+    return this.blogModel
+      .find({ published: true })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findOne(id: string): Promise<Blog> {
@@ -59,4 +60,3 @@ export class BlogsService {
     }
   }
 }
-

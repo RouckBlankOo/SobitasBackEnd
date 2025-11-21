@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -52,16 +52,18 @@ export class CategoriesController {
   @Post('admin/new-with-file')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Create new category with file upload (Admin only)' })
+  @ApiOperation({
+    summary: 'Create new category with file upload (Admin only)',
+  })
   @UseInterceptors(FileInterceptor('image'))
   async createWithFile(
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       createCategoryDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.categoriesService.create(createCategoryDto);
@@ -83,12 +85,12 @@ export class CategoriesController {
   async updateWithFile(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       updateCategoryDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.categoriesService.update(id, updateCategoryDto);
@@ -98,7 +100,10 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update category (Admin only)' })
-  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
@@ -111,4 +116,3 @@ export class CategoriesController {
     return { message: 'Category deleted successfully' };
   }
 }
-

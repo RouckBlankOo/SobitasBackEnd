@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsObject, IsMongoId } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsObject,
+  IsMongoId,
+} from 'class-validator';
 
 export class CreateSubcategoryDto {
   @IsString()
@@ -41,4 +48,3 @@ export class CreateSubcategoryDto {
   @IsOptional()
   meta_description?: string;
 }
-

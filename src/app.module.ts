@@ -26,6 +26,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { PagesModule } from './pages/pages.module';
+import { ContactsModule } from './contacts/contacts.module';
 import { SeedModule } from './database/seeds/seed.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -37,12 +38,16 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: ['.env', '.env.local'],
     }),
-    
+
     // Database with connection logging
     MongooseModule.forRootAsync({
       useFactory: async () => {
-        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sobitas-db';
-        console.log('🔌 Connecting to MongoDB:', uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@')); // Hide password in logs
+        const uri =
+          process.env.MONGODB_URI || 'mongodb://localhost:27017/sobitas-db';
+        console.log(
+          '🔌 Connecting to MongoDB:',
+          uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@'),
+        ); // Hide password in logs
         return {
           uri,
           retryAttempts: 3,
@@ -62,30 +67,30 @@ import { AppService } from './app.service';
         };
       },
     }),
-    
+
     // Rate limiting
     ThrottlerModule.forRoot({
       throttlers: [
         {
           ttl: 60000,
           limit: 100,
-        }
-      ]
+        },
+      ],
     }),
-    
+
     // JWT Global config
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'sobitas-secret-key',
       signOptions: { expiresIn: '24h' },
     }),
-    
+
     // Static file serving
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
-    
+
     // Core modules
     AuthModule,
     UsersModule,
@@ -96,7 +101,7 @@ import { AppService } from './app.service';
     ServicesModule,
     OrdersModule,
     EventsModule,
-    
+
     // Content modules
     CategoriesModule,
     BrandsModule,
@@ -106,11 +111,12 @@ import { AppService } from './app.service';
     BlogsModule,
     NewsletterModule,
     PagesModule,
-    
+    ContactsModule,
+
     // Database seeding
     SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

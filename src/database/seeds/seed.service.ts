@@ -42,7 +42,7 @@ export class SeedService {
           categories: await this.categoryModel.countDocuments(),
           subcategories: await this.subcategoryModel.countDocuments(),
           products: await this.productModel.countDocuments(),
-        }
+        },
       };
     } catch (error) {
       this.logger.error('❌ Database seeding failed:', error);
@@ -52,7 +52,7 @@ export class SeedService {
 
   private async clearDatabase() {
     this.logger.log('Clearing existing data...');
-    
+
     await Promise.all([
       this.productModel.deleteMany({}),
       this.categoryModel.deleteMany({}),
@@ -65,31 +65,31 @@ export class SeedService {
 
   private async seedBrands() {
     this.logger.log('Seeding brands...');
-    
+
     const brands = await this.brandModel.insertMany(brandsSeedData);
-    
+
     this.logger.log(`✓ Seeded ${brands.length} brands`);
   }
 
   private async seedCategories() {
     this.logger.log('Seeding categories...');
-    
+
     const categories = await this.categoryModel.insertMany(categoriesSeedData);
-    
+
     this.logger.log(`✓ Seeded ${categories.length} categories`);
   }
 
   private async seedSubcategories() {
     this.logger.log('Seeding subcategories...');
-    
+
     // Get category IDs
     const categories = await this.categoryModel.find({}).lean();
     const categoryMap = new Map(
-      categories.map(cat => [cat.designation_fr, cat._id])
+      categories.map((cat) => [cat.designation_fr, cat._id]),
     );
 
     // Map subcategories to category IDs
-    const subcategoriesWithIds = subcategoriesSeedData.map(sub => {
+    const subcategoriesWithIds = subcategoriesSeedData.map((sub) => {
       const { category, ...rest } = sub as any;
       return {
         ...rest,
@@ -97,22 +97,27 @@ export class SeedService {
       };
     });
 
-    const subcategories = await this.subcategoryModel.insertMany(subcategoriesWithIds);
-    
+    const subcategories =
+      await this.subcategoryModel.insertMany(subcategoriesWithIds);
+
     this.logger.log(`✓ Seeded ${subcategories.length} subcategories`);
   }
 
   private async seedProducts() {
     this.logger.log('Seeding products...');
-    
+
     // Get brand, category, and subcategory IDs (use .lean() to get plain objects)
     const brands = await this.brandModel.find({}).lean();
     const categories = await this.categoryModel.find({}).lean();
     const subcategories = await this.subcategoryModel.find({}).lean();
 
-    const brandMap = new Map(brands.map(b => [b.designation_fr, b._id]));
-    const categoryMap = new Map(categories.map(c => [c.designation_fr, c._id]));
-    const subcategoryMap = new Map(subcategories.map(s => [s.designation, s._id]));
+    const brandMap = new Map(brands.map((b) => [b.designation_fr, b._id]));
+    const categoryMap = new Map(
+      categories.map((c) => [c.designation_fr, c._id]),
+    );
+    const subcategoryMap = new Map(
+      subcategories.map((s) => [s.designation, s._id]),
+    );
 
     // Generate slugs and map IDs
     const productsWithIds = productsSeedData.map((product, index) => {
@@ -133,8 +138,10 @@ export class SeedService {
         brand: brandMap.get(product.brand),
         category: categoryId,
         subCategory: subcategoryId ? [subcategoryId] : [],
-        discountPercentage: product.oldPrice 
-          ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+        discountPercentage: product.oldPrice
+          ? Math.round(
+              ((product.oldPrice - product.price) / product.oldPrice) * 100,
+            )
           : 0,
         aggregateRating: 4 + Math.random(), // Random rating between 4-5
         reviewCount: Math.floor(Math.random() * 50) + 5, // Random 5-55 reviews
@@ -144,7 +151,7 @@ export class SeedService {
     });
 
     const products = await this.productModel.insertMany(productsWithIds);
-    
+
     this.logger.log(`✓ Seeded ${products.length} products`);
   }
 
@@ -172,4 +179,3 @@ export class SeedService {
     return { success: true, message: 'Brands seeded successfully' };
   }
 }
-

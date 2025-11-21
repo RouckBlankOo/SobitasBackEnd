@@ -50,13 +50,15 @@ export class Order {
     };
   };
 
-  @Prop([{
-    productId: { type: String, required: true },
-    title: { type: String, required: true },
-    price: { type: Number, required: true },
-    quantity: { type: Number, required: true },
-    image: String,
-  }])
+  @Prop([
+    {
+      productId: { type: String, required: true },
+      title: { type: String, required: true },
+      price: { type: Number, required: true },
+      quantity: { type: Number, required: true },
+      image: String,
+    },
+  ])
   items: Array<{
     productId: string;
     title: string;

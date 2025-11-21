@@ -22,4 +22,3 @@ export class CreatePageDto {
   @IsOptional()
   meta_keywords?: string;
 }
-

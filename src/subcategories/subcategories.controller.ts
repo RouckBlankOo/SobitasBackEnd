@@ -1,12 +1,12 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
-  UseGuards
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SubcategoriesService } from './subcategories.service';
@@ -54,7 +54,10 @@ export class SubcategoriesController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update subcategory (Admin only)' })
-  async update(@Param('id') id: string, @Body() updateSubcategoryDto: UpdateSubcategoryDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateSubcategoryDto: UpdateSubcategoryDto,
+  ) {
     return this.subcategoriesService.update(id, updateSubcategoryDto);
   }
 
@@ -67,4 +70,3 @@ export class SubcategoriesController {
     return { message: 'Subcategory deleted successfully' };
   }
 }
-

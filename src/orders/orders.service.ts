@@ -18,16 +18,21 @@ export class OrdersService {
 
   async findAll(filters: any = {}): Promise<{
     orders: Order[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
   }> {
     const { page = 1, limit = 10, status, customerEmail } = filters;
-    
+
     const query: any = {};
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (customerEmail) {
       query.customerEmail = { $regex: customerEmail, $options: 'i' };
     }
@@ -64,11 +69,11 @@ export class OrdersService {
     const updatedOrder = await this.orderModel
       .findByIdAndUpdate(id, updateOrderDto, { new: true })
       .exec();
-    
+
     if (!updatedOrder) {
       throw new NotFoundException(`Order with ID "${id}" not found`);
     }
-    
+
     return updatedOrder;
   }
 
@@ -90,32 +95,46 @@ export class OrdersService {
         $group: {
           _id: null,
           total: { $sum: 1 },
-          pending: { $sum: { $cond: [{ $eq: ['$status', OrderStatus.PENDING] }, 1, 0] } },
-          confirmed: { $sum: { $cond: [{ $eq: ['$status', OrderStatus.CONFIRMED] }, 1, 0] } },
-          shipped: { $sum: { $cond: [{ $eq: ['$status', OrderStatus.SHIPPED] }, 1, 0] } },
-          delivered: { $sum: { $cond: [{ $eq: ['$status', OrderStatus.DELIVERED] }, 1, 0] } },
-          cancelled: { $sum: { $cond: [{ $eq: ['$status', OrderStatus.CANCELLED] }, 1, 0] } },
+          pending: {
+            $sum: { $cond: [{ $eq: ['$status', OrderStatus.PENDING] }, 1, 0] },
+          },
+          confirmed: {
+            $sum: {
+              $cond: [{ $eq: ['$status', OrderStatus.CONFIRMED] }, 1, 0],
+            },
+          },
+          shipped: {
+            $sum: { $cond: [{ $eq: ['$status', OrderStatus.SHIPPED] }, 1, 0] },
+          },
+          delivered: {
+            $sum: {
+              $cond: [{ $eq: ['$status', OrderStatus.DELIVERED] }, 1, 0],
+            },
+          },
+          cancelled: {
+            $sum: {
+              $cond: [{ $eq: ['$status', OrderStatus.CANCELLED] }, 1, 0],
+            },
+          },
           totalRevenue: { $sum: '$totalAmount' },
         },
       },
     ]);
 
-    return stats || {
-      total: 0,
-      pending: 0,
-      confirmed: 0,
-      shipped: 0,
-      delivered: 0,
-      cancelled: 0,
-      totalRevenue: 0,
-    };
+    return (
+      stats || {
+        total: 0,
+        pending: 0,
+        confirmed: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+        totalRevenue: 0,
+      }
+    );
   }
 
   async getRecentOrders(limit: number = 10): Promise<Order[]> {
-    return this.orderModel
-      .find()
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
+    return this.orderModel.find().sort({ createdAt: -1 }).limit(limit).exec();
   }
 }

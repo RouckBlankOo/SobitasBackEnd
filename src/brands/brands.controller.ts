@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -54,12 +54,12 @@ export class BrandsController {
   @UseInterceptors(FileInterceptor('logo'))
   async createWithFile(
     @Body() createBrandDto: CreateBrandDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       createBrandDto.logo = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.brandsService.create(createBrandDto);
@@ -81,12 +81,12 @@ export class BrandsController {
   async updateWithFile(
     @Param('id') id: string,
     @Body() updateBrandDto: UpdateBrandDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       updateBrandDto.logo = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.brandsService.update(id, updateBrandDto);
@@ -96,7 +96,10 @@ export class BrandsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update brand (Admin only)' })
-  async update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateBrandDto: UpdateBrandDto,
+  ) {
     return this.brandsService.update(id, updateBrandDto);
   }
 
@@ -109,4 +112,3 @@ export class BrandsController {
     return { message: 'Brand deleted successfully' };
   }
 }
-

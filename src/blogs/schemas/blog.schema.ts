@@ -49,4 +49,3 @@ export const BlogSchema = SchemaFactory.createForClass(Blog);
 
 BlogSchema.index({ slug: 1 });
 BlogSchema.index({ published: 1, createdAt: -1 });
-

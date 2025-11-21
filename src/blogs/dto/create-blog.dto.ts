@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsBoolean, IsArray, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsObject,
+} from 'class-validator';
 
 export class CreateBlogDto {
   @IsString()
@@ -44,4 +50,3 @@ export class CreateBlogDto {
   @IsOptional()
   tags?: string[];
 }
-

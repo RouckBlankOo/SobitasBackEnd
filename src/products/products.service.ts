@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
@@ -25,10 +31,10 @@ export class ProductsService {
     try {
       const createdProduct = new this.productModel(createProductDto);
       const savedProduct = await createdProduct.save();
-      
+
       // Emit WebSocket event
       this.eventsGateway.emitProductCreated(savedProduct);
-      
+
       return savedProduct;
     } catch (error) {
       if (error.code === 11000) {
@@ -40,12 +46,26 @@ export class ProductsService {
 
   async findAll(filters: ProductFilterDto = {}): Promise<{
     products: Product[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
   }> {
-    const { page = 1, limit = 10, search, category, brand, inStock, minPrice, maxPrice } = filters;
-    
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      category,
+      brand,
+      inStock,
+      minPrice,
+      maxPrice,
+    } = filters;
+
     const query: any = {};
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -53,39 +73,43 @@ export class ProductsService {
         { description: { $regex: search, $options: 'i' } },
       ];
     }
-    
+
     // Category filtering: Look up category by slug first, then filter by ObjectId
     if (category) {
-      const categoryDoc = await this.categoryModel.findOne({ 
-        $or: [
-          { slug: category },
-          { designation_fr: { $regex: category, $options: 'i' } }
-        ]
-      }).exec();
-      
+      const categoryDoc = await this.categoryModel
+        .findOne({
+          $or: [
+            { slug: category },
+            { designation_fr: { $regex: category, $options: 'i' } },
+          ],
+        })
+        .exec();
+
       if (categoryDoc) {
         query.category = categoryDoc._id;
       }
     }
-    
+
     // Brand filtering: Look up brand by slug first, then filter by ObjectId
     if (brand) {
-      const brandDoc = await this.brandModel.findOne({ 
-        $or: [
-          { slug: brand },
-          { designation_fr: { $regex: brand, $options: 'i' } }
-        ]
-      }).exec();
-      
+      const brandDoc = await this.brandModel
+        .findOne({
+          $or: [
+            { slug: brand },
+            { designation_fr: { $regex: brand, $options: 'i' } },
+          ],
+        })
+        .exec();
+
       if (brandDoc) {
         query.brand = brandDoc._id;
       }
     }
-    
+
     if (inStock !== undefined) {
       query.inStock = inStock;
     }
-    
+
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.price = {};
       if (minPrice !== undefined) query.price.$gte = minPrice;
@@ -120,12 +144,12 @@ export class ProductsService {
     if (!id || id === 'undefined' || id === 'null') {
       throw new BadRequestException('Invalid product ID');
     }
-    
+
     // Check if it's a valid MongoDB ObjectId format (24 hex characters)
     if (!/^[0-9a-fA-F]{24}$/.test(id)) {
       throw new BadRequestException(`Invalid product ID format: "${id}"`);
     }
-    
+
     const product = await this.productModel.findById(id).exec();
     if (!product) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
@@ -141,18 +165,21 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     const updatedProduct = await this.productModel
       .findByIdAndUpdate(id, updateProductDto, { new: true })
       .exec();
-    
+
     if (!updatedProduct) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
-    
+
     // Emit WebSocket event
     this.eventsGateway.emitProductUpdated(updatedProduct);
-    
+
     return updatedProduct;
   }
 
@@ -161,7 +188,7 @@ export class ProductsService {
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
-    
+
     // Emit WebSocket event
     this.eventsGateway.emitProductDeleted(id);
   }
@@ -170,21 +197,21 @@ export class ProductsService {
     const product = await this.productModel
       .findByIdAndUpdate(
         id,
-        { 
+        {
           $inc: { stock: -quantity },
-          $set: { inStock: quantity > 0 }
+          $set: { inStock: quantity > 0 },
         },
-        { new: true }
+        { new: true },
       )
       .exec();
-    
+
     if (!product) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
-    
+
     // Emit WebSocket event for stock update
     this.eventsGateway.emitStockUpdate(id, product.stock);
-    
+
     return product;
   }
 
@@ -203,22 +230,26 @@ export class ProductsService {
 
   async getFlashSaleProducts(): Promise<Product[]> {
     return this.productModel
-      .find({ 
-        isFlashSale: true, 
+      .find({
+        isFlashSale: true,
         status: true,
-        venteflashDate: { $gte: new Date() }
+        venteflashDate: { $gte: new Date() },
       })
       .sort({ venteflashDate: 1 })
       .exec();
   }
 
-  async getRelatedProducts(productId: string, category: string, limit: number = 4): Promise<Product[]> {
+  async getRelatedProducts(
+    productId: string,
+    category: string,
+    limit: number = 4,
+  ): Promise<Product[]> {
     return this.productModel
-      .find({ 
+      .find({
         _id: { $ne: productId },
         category,
         status: true,
-        inStock: true
+        inStock: true,
       })
       .limit(limit)
       .exec();
@@ -228,29 +259,41 @@ export class ProductsService {
     return this.productModel
       .find({
         $text: { $search: query },
-        status: true
+        status: true,
       })
       .limit(limit)
       .exec();
   }
 
-  async getProductsByCategory(categorySlug: string, filters: ProductFilterDto = {}): Promise<{
+  async getProductsByCategory(
+    categorySlug: string,
+    filters: ProductFilterDto = {},
+  ): Promise<{
     products: Product[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
   }> {
     const { page = 1, limit = 10 } = filters;
-    
+
     // First, find the category by slug
-    const category = await this.categoryModel.findOne({ slug: categorySlug }).exec();
-    
+    const category = await this.categoryModel
+      .findOne({ slug: categorySlug })
+      .exec();
+
     if (!category) {
-      throw new NotFoundException(`Category with slug "${categorySlug}" not found`);
+      throw new NotFoundException(
+        `Category with slug "${categorySlug}" not found`,
+      );
     }
 
     // Query products by category ObjectId
     const query: any = {
       category: category._id,
-      status: true
+      status: true,
     };
 
     const skip = (page - 1) * limit;
@@ -276,23 +319,35 @@ export class ProductsService {
     };
   }
 
-  async getProductsBySubcategory(subcategorySlug: string, filters: ProductFilterDto = {}): Promise<{
+  async getProductsBySubcategory(
+    subcategorySlug: string,
+    filters: ProductFilterDto = {},
+  ): Promise<{
     products: Product[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
   }> {
     const { page = 1, limit = 10 } = filters;
-    
+
     // First, find the subcategory by slug
-    const subcategory = await this.subcategoryModel.findOne({ slug: subcategorySlug }).exec();
-    
+    const subcategory = await this.subcategoryModel
+      .findOne({ slug: subcategorySlug })
+      .exec();
+
     if (!subcategory) {
-      throw new NotFoundException(`Subcategory with slug "${subcategorySlug}" not found`);
+      throw new NotFoundException(
+        `Subcategory with slug "${subcategorySlug}" not found`,
+      );
     }
 
     // Query products where subCategory array contains the subcategory ObjectId
     const query: any = {
       subCategory: subcategory._id,
-      status: true
+      status: true,
     };
 
     const skip = (page - 1) * limit;

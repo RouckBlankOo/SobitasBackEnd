@@ -1,13 +1,13 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
   UseGuards,
-  Query
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ReviewsService } from './reviews.service';
@@ -66,7 +66,10 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update review (Admin only)' })
-  async update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateReviewDto: UpdateReviewDto,
+  ) {
     return this.reviewsService.update(id, updateReviewDto);
   }
 
@@ -79,4 +82,3 @@ export class ReviewsController {
     return { message: 'Review deleted successfully' };
   }
 }
-

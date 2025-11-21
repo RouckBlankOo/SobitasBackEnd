@@ -1,11 +1,11 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Delete, 
-  UseGuards
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { NewsletterService } from './newsletter.service';
@@ -50,4 +50,3 @@ export class NewsletterController {
     return { message: 'Campaign sent successfully', data: campaignData };
   }
 }
-

@@ -1,4 +1,12 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsEmail, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsEmail,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class CreateReviewDto {
   @IsString()
@@ -31,4 +39,3 @@ export class CreateReviewDto {
   @IsOptional()
   isTestimonial?: boolean;
 }
-

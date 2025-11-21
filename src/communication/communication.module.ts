@@ -8,4 +8,3 @@ import { CommunicationService } from './communication.service';
   exports: [CommunicationService],
 })
 export class CommunicationModule {}
-

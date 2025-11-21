@@ -1,15 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
-  UseGuards, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
   Query,
   Patch,
-  HttpStatus,
   UseInterceptors,
   UploadedFiles,
   Headers,
@@ -17,7 +16,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -56,7 +60,10 @@ export class ProductsController {
 
   @Get('search/:query')
   @ApiOperation({ summary: 'Search products by text' })
-  async searchProducts(@Param('query') query: string, @Query('limit') limit?: number) {
+  async searchProducts(
+    @Param('query') query: string,
+    @Query('limit') limit?: number,
+  ) {
     return this.productsService.searchProducts(query, limit || 10);
   }
 
@@ -64,7 +71,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get products by category slug' })
   async getProductsByCategory(
     @Param('categorySlug') categorySlug: string,
-    @Query() filters: ProductFilterDto
+    @Query() filters: ProductFilterDto,
   ) {
     return this.productsService.getProductsByCategory(categorySlug, filters);
   }
@@ -73,9 +80,12 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get products by subcategory slug' })
   async getProductsBySubcategory(
     @Param('subcategorySlug') subcategorySlug: string,
-    @Query() filters: ProductFilterDto
+    @Query() filters: ProductFilterDto,
   ) {
-    return this.productsService.getProductsBySubcategory(subcategorySlug, filters);
+    return this.productsService.getProductsBySubcategory(
+      subcategorySlug,
+      filters,
+    );
   }
 
   @Get('slug/:slug')
@@ -93,14 +103,34 @@ export class ProductsController {
   @Get(':id/related')
   @ApiOperation({ summary: 'Get related products' })
   async getRelatedProducts(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Query('category') category: string,
-    @Query('limit') limit?: number
+    @Query('limit') limit?: number,
   ) {
     return this.productsService.getRelatedProducts(id, category, limit || 4);
   }
 
   // Admin-only endpoints for dashboard
+  @Post('admin/new-with-file')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Create new product with file upload (Admin only)' })
+  @UseInterceptors(FilesInterceptor('images', 10))
+  async createWithFile(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() files?: Express.Multer.File[],
+  ) {
+    // Handle file uploads if provided
+    if (files && files.length > 0) {
+      // Process uploaded files and add URLs to DTO
+      createProductDto.images = files.map((file) => ({
+        url: `/uploads/${file.filename}`,
+        alt: file.originalname,
+      }));
+    }
+    return this.productsService.create(createProductDto);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
@@ -108,17 +138,37 @@ export class ProductsController {
   @UseInterceptors(FilesInterceptor('images', 10))
   async create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFiles() files?: Express.Multer.File[]
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
     // Handle file uploads if provided
     if (files && files.length > 0) {
       // Process uploaded files and add URLs to DTO
-      createProductDto.images = files.map(file => ({
+      createProductDto.images = files.map((file) => ({
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       }));
     }
     return this.productsService.create(createProductDto);
+  }
+
+  @Put('admin/update-with-file/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Update product with file upload (Admin only)' })
+  @UseInterceptors(FilesInterceptor('images', 10))
+  async updateWithFile(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() files?: Express.Multer.File[],
+  ) {
+    // Handle file uploads if provided
+    if (files && files.length > 0) {
+      updateProductDto.images = files.map((file) => ({
+        url: `/uploads/${file.filename}`,
+        alt: file.originalname,
+      }));
+    }
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Put(':id')
@@ -127,15 +177,15 @@ export class ProductsController {
   @ApiOperation({ summary: 'Update product (Admin only)' })
   @UseInterceptors(FilesInterceptor('images', 10))
   async update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFiles() files?: Express.Multer.File[]
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
     // Handle file uploads if provided
     if (files && files.length > 0) {
-      updateProductDto.images = files.map(file => ({
+      updateProductDto.images = files.map((file) => ({
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       }));
     }
     return this.productsService.update(id, updateProductDto);
@@ -162,7 +212,10 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update product stock (Admin only)' })
-  async updateStock(@Param('id') id: string, @Body('quantity') quantity: number) {
+  async updateStock(
+    @Param('id') id: string,
+    @Body('quantity') quantity: number,
+  ) {
     return this.productsService.updateStock(id, quantity);
   }
 
@@ -170,14 +223,17 @@ export class ProductsController {
   @Get('admin/all')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get all products for admin selection (Admin only)' })
+  @ApiOperation({
+    summary: 'Get all products for admin selection (Admin only)',
+  })
   async getAllForAdmin() {
     const result = await this.productsService.findAll({ limit: 1000 });
-    return result.products.map(product => ({
+    return result.products.map((product) => ({
       _id: (product as any)._id || (product as any).id,
-      designation_fr: product.designation_fr || product.designation || product.title,
+      designation_fr:
+        product.designation_fr || product.designation || product.title,
       name: product.name || product.title,
-      slug: product.slug
+      slug: product.slug,
     }));
   }
 
@@ -185,7 +241,9 @@ export class ProductsController {
   @Post('revalidate')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Trigger ISR revalidation for Next.js frontends (Admin only)' })
+  @ApiOperation({
+    summary: 'Trigger ISR revalidation for Next.js frontends (Admin only)',
+  })
   async triggerRevalidation(
     @Body('productId') productId: string,
     @Body('secret') secret: string,
@@ -193,7 +251,7 @@ export class ProductsController {
   ) {
     // Verify secret from body or header
     const revalidateSecret = this.configService.get('REVALIDATE_SECRET');
-    
+
     if (!revalidateSecret) {
       throw new BadRequestException('Revalidation secret not configured');
     }
@@ -207,12 +265,12 @@ export class ProductsController {
     }
 
     const product = await this.productsService.findOne(productId);
-    
+
     // Call Next.js revalidation endpoints
     await this.revalidateNextJS(product.slug);
-    
-    return { 
-      revalidated: true, 
+
+    return {
+      revalidated: true,
       slug: product.slug,
       timestamp: new Date().toISOString(),
     };
@@ -228,18 +286,18 @@ export class ProductsController {
       `${adminUrl}/api/revalidate?secret=${revalidateSecret}&path=/products/${slug}`,
       `${ecommerceUrl}/api/revalidate?secret=${revalidateSecret}&path=/products/${slug}`,
       `${ecommerceUrl}/api/revalidate?secret=${revalidateSecret}&path=/products`,
-    ].filter(url => url && !url.includes('undefined'));
-    
+    ].filter((url) => url && !url.includes('undefined'));
+
     const results = await Promise.allSettled(
-      urls.map(url => 
-        fetch(url, { 
+      urls.map((url) =>
+        fetch(url, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        }).catch(err => {
+          headers: { 'Content-Type': 'application/json' },
+        }).catch((err) => {
           console.error(`Failed to revalidate ${url}:`, err.message);
           return null;
-        })
-      )
+        }),
+      ),
     );
 
     return results;

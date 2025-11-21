@@ -17,7 +17,10 @@ export class CategoriesService {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoryModel.find().sort({ order: 1, designation_fr: 1 }).exec();
+    return this.categoryModel
+      .find()
+      .sort({ order: 1, designation_fr: 1 })
+      .exec();
   }
 
   async findActive(): Promise<Category[]> {
@@ -40,7 +43,10 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
     const updatedCategory = await this.categoryModel
       .findByIdAndUpdate(id, updateCategoryDto, { new: true })
       .exec();
@@ -57,4 +63,3 @@ export class CategoriesService {
     }
   }
 }
-

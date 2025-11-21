@@ -6,7 +6,9 @@ import { ServiceItem, ServiceSchema } from './schemas/service.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: ServiceItem.name, schema: ServiceSchema }]),
+    MongooseModule.forFeature([
+      { name: ServiceItem.name, schema: ServiceSchema },
+    ]),
   ],
   controllers: [ServicesController],
   providers: [ServicesService],

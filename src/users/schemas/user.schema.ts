@@ -35,7 +35,10 @@ export class User {
   @Prop()
   lastLoginAt?: Date;
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Product' }], default: [] })
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Product' }],
+    default: [],
+  })
   wishlist?: Types.ObjectId[];
 }
 

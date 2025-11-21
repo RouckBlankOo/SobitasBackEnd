@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -72,7 +81,10 @@ export class UsersController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Check if product is in wishlist' })
   async isInWishlist(@Request() req, @Param('productId') productId: string) {
-    const isInWishlist = await this.usersService.isInWishlist(req.user.userId, productId);
+    const isInWishlist = await this.usersService.isInWishlist(
+      req.user.userId,
+      productId,
+    );
     return { isInWishlist };
   }
 }

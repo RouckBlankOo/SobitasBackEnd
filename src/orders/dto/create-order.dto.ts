@@ -1,4 +1,14 @@
-import { IsNotEmpty, IsEmail, IsArray, IsNumber, IsOptional, IsString, IsEnum, Min, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsEmail,
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsEnum,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { OrderStatus } from '../schemas/order.schema';
 

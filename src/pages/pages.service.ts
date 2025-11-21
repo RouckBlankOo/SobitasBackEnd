@@ -7,9 +7,7 @@ import { UpdatePageDto } from './dto/update-page.dto';
 
 @Injectable()
 export class PagesService {
-  constructor(
-    @InjectModel(Page.name) private pageModel: Model<PageDocument>,
-  ) {}
+  constructor(@InjectModel(Page.name) private pageModel: Model<PageDocument>) {}
 
   async create(createPageDto: CreatePageDto): Promise<Page> {
     const createdPage = new this.pageModel(createPageDto);
@@ -57,4 +55,3 @@ export class PagesService {
     }
   }
 }
-

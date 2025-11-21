@@ -52,4 +52,3 @@ export const BrandSchema = SchemaFactory.createForClass(Brand);
 
 // Index for faster queries (slug index already created by unique: true)
 BrandSchema.index({ active: 1, order: 1 });
-

@@ -7,9 +7,7 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -78,24 +76,30 @@ export class UsersService {
       .findById(userId)
       .populate('wishlist')
       .exec();
-    
+
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
-    
+
     return user.wishlist || [];
   }
 
   async addToWishlist(userId: string, productId: string): Promise<any> {
     const user = await this.userModel.findById(userId).exec();
-    
+
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
 
     // Check if product already in wishlist
-    if (user.wishlist && user.wishlist.some(id => id.toString() === productId)) {
-      return { message: 'Product already in wishlist', wishlist: user.wishlist };
+    if (
+      user.wishlist &&
+      user.wishlist.some((id) => id.toString() === productId)
+    ) {
+      return {
+        message: 'Product already in wishlist',
+        wishlist: user.wishlist,
+      };
     }
 
     // Add product to wishlist
@@ -103,7 +107,7 @@ export class UsersService {
       .findByIdAndUpdate(
         userId,
         { $addToSet: { wishlist: productId } },
-        { new: true }
+        { new: true },
       )
       .populate('wishlist')
       .exec();
@@ -112,9 +116,9 @@ export class UsersService {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
 
-    return { 
-      message: 'Product added to wishlist', 
-      wishlist: updatedUser.wishlist 
+    return {
+      message: 'Product added to wishlist',
+      wishlist: updatedUser.wishlist,
     };
   }
 
@@ -123,7 +127,7 @@ export class UsersService {
       .findByIdAndUpdate(
         userId,
         { $pull: { wishlist: productId } },
-        { new: true }
+        { new: true },
       )
       .populate('wishlist')
       .exec();
@@ -132,19 +136,15 @@ export class UsersService {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
 
-    return { 
-      message: 'Product removed from wishlist', 
-      wishlist: updatedUser.wishlist || [] 
+    return {
+      message: 'Product removed from wishlist',
+      wishlist: updatedUser.wishlist || [],
     };
   }
 
   async clearWishlist(userId: string): Promise<any> {
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(
-        userId,
-        { $set: { wishlist: [] } },
-        { new: true }
-      )
+      .findByIdAndUpdate(userId, { $set: { wishlist: [] } }, { new: true })
       .exec();
 
     if (!updatedUser) {
@@ -156,12 +156,11 @@ export class UsersService {
 
   async isInWishlist(userId: string, productId: string): Promise<boolean> {
     const user = await this.userModel.findById(userId).exec();
-    
+
     if (!user || !user.wishlist) {
       return false;
     }
 
-    return user.wishlist.some(id => id.toString() === productId);
+    return user.wishlist.some((id) => id.toString() === productId);
   }
 }
-

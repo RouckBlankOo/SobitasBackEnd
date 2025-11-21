@@ -13,4 +13,3 @@ import { Page, PageSchema } from './schemas/page.schema';
   exports: [PagesService],
 })
 export class PagesModule {}
-

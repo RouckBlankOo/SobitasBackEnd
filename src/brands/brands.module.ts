@@ -13,4 +13,3 @@ import { Brand, BrandSchema } from './schemas/brand.schema';
   exports: [BrandsService],
 })
 export class BrandsModule {}
-

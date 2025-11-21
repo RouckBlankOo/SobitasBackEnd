@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Put, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -49,12 +49,12 @@ export class ServicesController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body() createServiceDto: CreateServiceDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       createServiceDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.servicesService.create(createServiceDto);
@@ -68,12 +68,12 @@ export class ServicesController {
   async update(
     @Param('id') id: string,
     @Body() updateServiceDto: UpdateServiceDto,
-    @UploadedFile() file?: Express.Multer.File
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       updateServiceDto.image = {
         url: `/uploads/${file.filename}`,
-        alt: file.originalname
+        alt: file.originalname,
       };
     }
     return this.servicesService.update(id, updateServiceDto);
@@ -96,9 +96,9 @@ export class ServicesController {
   async removeMultiple(@Param('ids') ids: string) {
     const serviceIds = ids.split(',');
     const result = await this.servicesService.removeMultiple(serviceIds);
-    return { 
+    return {
       message: `${result.deletedCount} services deleted successfully`,
-      deletedCount: result.deletedCount
+      deletedCount: result.deletedCount,
     };
   }
 }

@@ -17,10 +17,7 @@ export class ServicesService {
   }
 
   async findAll(): Promise<ServiceItem[]> {
-    return this.serviceModel
-      .find()
-      .sort({ order: 1, createdAt: -1 })
-      .exec();
+    return this.serviceModel.find().sort({ order: 1, createdAt: -1 }).exec();
   }
 
   async findOne(id: string): Promise<ServiceItem> {
@@ -31,15 +28,18 @@ export class ServicesService {
     return service;
   }
 
-  async update(id: string, updateServiceDto: UpdateServiceDto): Promise<ServiceItem> {
+  async update(
+    id: string,
+    updateServiceDto: UpdateServiceDto,
+  ): Promise<ServiceItem> {
     const updatedService = await this.serviceModel
       .findByIdAndUpdate(id, updateServiceDto, { new: true })
       .exec();
-    
+
     if (!updatedService) {
       throw new NotFoundException(`Service with ID "${id}" not found`);
     }
-    
+
     return updatedService;
   }
 
@@ -63,7 +63,9 @@ export class ServicesService {
   }
 
   async removeMultiple(ids: string[]): Promise<{ deletedCount: number }> {
-    const result = await this.serviceModel.deleteMany({ _id: { $in: ids } }).exec();
+    const result = await this.serviceModel
+      .deleteMany({ _id: { $in: ids } })
+      .exec();
     return { deletedCount: result.deletedCount };
   }
 }

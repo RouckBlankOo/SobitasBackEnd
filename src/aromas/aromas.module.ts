@@ -13,4 +13,3 @@ import { Aroma, AromaSchema } from './schemas/aroma.schema';
   exports: [AromasService],
 })
 export class AromasModule {}
-

@@ -14,4 +14,3 @@ export class CommunicationService {
     return { success: true };
   }
 }
-

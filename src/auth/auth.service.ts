@@ -15,7 +15,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
-    
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -48,9 +48,11 @@ export class AuthService {
     const refresh_token = this.jwtService.sign(
       { sub: userId },
       {
-        secret: this.configService.get('JWT_REFRESH_SECRET') || this.configService.get('JWT_SECRET'),
+        secret:
+          this.configService.get('JWT_REFRESH_SECRET') ||
+          this.configService.get('JWT_SECRET'),
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION') || '7d',
-      }
+      },
     );
 
     return {
@@ -69,11 +71,13 @@ export class AuthService {
   async refreshToken(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get('JWT_REFRESH_SECRET') || this.configService.get('JWT_SECRET'),
+        secret:
+          this.configService.get('JWT_REFRESH_SECRET') ||
+          this.configService.get('JWT_SECRET'),
       });
 
       const user = await this.usersService.findById(payload.sub);
-      
+
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
@@ -101,8 +105,10 @@ export class AuthService {
 
   async register(createUserDto: any) {
     // Check if user already exists
-    const existingUser = await this.usersService.findByEmail(createUserDto.email);
-    
+    const existingUser = await this.usersService.findByEmail(
+      createUserDto.email,
+    );
+
     if (existingUser) {
       throw new UnauthorizedException('User with this email already exists');
     }
@@ -125,8 +131,9 @@ export class AuthService {
     });
 
     // Automatically log in the new user
-    const userId = (newUser as any)._id?.toString() || String((newUser as any)._id);
-    
+    const userId =
+      (newUser as any)._id?.toString() || String((newUser as any)._id);
+
     const payload = {
       email: newUser.email,
       sub: userId,
@@ -141,9 +148,11 @@ export class AuthService {
     const refresh_token = this.jwtService.sign(
       { sub: userId },
       {
-        secret: this.configService.get('JWT_REFRESH_SECRET') || this.configService.get('JWT_SECRET'),
+        secret:
+          this.configService.get('JWT_REFRESH_SECRET') ||
+          this.configService.get('JWT_SECRET'),
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION') || '7d',
-      }
+      },
     );
 
     return {

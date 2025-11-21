@@ -27,4 +27,3 @@ export class Page {
 export const PageSchema = SchemaFactory.createForClass(Page);
 
 PageSchema.index({ slug: 1 });
-

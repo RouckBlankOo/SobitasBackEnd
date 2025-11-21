@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsObject,
+} from 'class-validator';
 
 export class CreateBrandDto {
   @IsString()
@@ -53,4 +59,3 @@ export class CreateBrandDto {
   @IsOptional()
   featured?: boolean;
 }
-

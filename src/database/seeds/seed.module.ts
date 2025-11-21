@@ -3,8 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SeedService } from './seed.service';
 import { SeedController } from './seed.controller';
 import { Product, ProductSchema } from '../../products/schemas/product.schema';
-import { Category, CategorySchema } from '../../categories/schemas/category.schema';
-import { Subcategory, SubcategorySchema } from '../../subcategories/schemas/subcategory.schema';
+import {
+  Category,
+  CategorySchema,
+} from '../../categories/schemas/category.schema';
+import {
+  Subcategory,
+  SubcategorySchema,
+} from '../../subcategories/schemas/subcategory.schema';
 import { Brand, BrandSchema } from '../../brands/schemas/brand.schema';
 
 @Module({
@@ -21,4 +27,3 @@ import { Brand, BrandSchema } from '../../brands/schemas/brand.schema';
   exports: [SeedService],
 })
 export class SeedModule {}
-

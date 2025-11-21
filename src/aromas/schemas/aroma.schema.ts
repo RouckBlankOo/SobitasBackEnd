@@ -27,4 +27,3 @@ export class Aroma {
 export const AromaSchema = SchemaFactory.createForClass(Aroma);
 
 AromaSchema.index({ name: 1 });
-

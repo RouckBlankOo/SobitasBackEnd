@@ -13,4 +13,3 @@ import { Blog, BlogSchema } from './schemas/blog.schema';
   exports: [BlogsService],
 })
 export class BlogsModule {}
-

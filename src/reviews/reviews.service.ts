@@ -21,15 +21,24 @@ export class ReviewsService {
   }
 
   async findApproved(): Promise<Review[]> {
-    return this.reviewModel.find({ approved: true }).sort({ createdAt: -1 }).exec();
+    return this.reviewModel
+      .find({ approved: true })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findTestimonials(): Promise<Review[]> {
-    return this.reviewModel.find({ approved: true, isTestimonial: true }).sort({ createdAt: -1 }).exec();
+    return this.reviewModel
+      .find({ approved: true, isTestimonial: true })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findByProduct(productId: string): Promise<Review[]> {
-    return this.reviewModel.find({ productId, approved: true }).sort({ createdAt: -1 }).exec();
+    return this.reviewModel
+      .find({ productId, approved: true })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findOne(id: string): Promise<Review> {
@@ -61,4 +70,3 @@ export class ReviewsService {
     }
   }
 }
-
