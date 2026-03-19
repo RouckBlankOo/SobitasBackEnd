@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateAromaDto {
   @IsString()
@@ -19,8 +19,4 @@ export class CreateAromaDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
-
-  @IsArray()
-  @IsOptional()
-  products?: string[];
 }

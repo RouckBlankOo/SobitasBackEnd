@@ -4,16 +4,33 @@ import { Model } from 'mongoose';
 import { Review, ReviewDocument } from './schemas/review.schema';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { LoyaltyService } from '../loyalty/loyalty.service';
+import { PointsActivityType } from '../loyalty/schemas/loyalty.schema';
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
-  ) {}
+    private readonly loyaltyService: LoyaltyService,
+  ) { }
 
   async create(createReviewDto: CreateReviewDto): Promise<Review> {
     const createdReview = new this.reviewModel(createReviewDto);
-    return createdReview.save();
+    const savedReview = await createdReview.save();
+
+    // Award loyalty points for writing a review
+    if (createReviewDto.customerEmail) {
+      try {
+        await this.loyaltyService.earnPoints({
+          userEmail: createReviewDto.customerEmail,
+          activityType: PointsActivityType.REVIEW,
+        });
+      } catch (error) {
+        console.error('Failed to award review points:', error);
+      }
+    }
+
+    return savedReview;
   }
 
   async findAll(): Promise<Review[]> {

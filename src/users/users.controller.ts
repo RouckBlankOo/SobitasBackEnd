@@ -5,6 +5,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
 
 @ApiTags('users')
 @Controller('users')
@@ -31,7 +33,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get current user profile' })
-  getProfile(@Request() req) {
+  getProfile(@Request() req: RequestWithUser) {
     return this.usersService.findById(req.user.userId);
   }
 
@@ -39,8 +41,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get all users (Admin only)' })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query('role') role?: string) {
+    return this.usersService.findAll(role);
   }
 
   // Wishlist endpoints
@@ -48,7 +50,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get user wishlist' })
-  getWishlist(@Request() req) {
+  getWishlist(@Request() req: RequestWithUser) {
     return this.usersService.getWishlist(req.user.userId);
   }
 
@@ -56,7 +58,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Add product to wishlist' })
-  addToWishlist(@Request() req, @Param('productId') productId: string) {
+  addToWishlist(
+    @Request() req: RequestWithUser,
+    @Param('productId') productId: string,
+  ) {
     return this.usersService.addToWishlist(req.user.userId, productId);
   }
 
@@ -64,7 +69,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Remove product from wishlist' })
-  removeFromWishlist(@Request() req, @Param('productId') productId: string) {
+  removeFromWishlist(
+    @Request() req: RequestWithUser,
+    @Param('productId') productId: string,
+  ) {
     return this.usersService.removeFromWishlist(req.user.userId, productId);
   }
 
@@ -72,7 +80,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Clear entire wishlist' })
-  clearWishlist(@Request() req) {
+  clearWishlist(@Request() req: RequestWithUser) {
     return this.usersService.clearWishlist(req.user.userId);
   }
 
@@ -80,7 +88,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Check if product is in wishlist' })
-  async isInWishlist(@Request() req, @Param('productId') productId: string) {
+  async isInWishlist(
+    @Request() req: RequestWithUser,
+    @Param('productId') productId: string,
+  ) {
     const isInWishlist = await this.usersService.isInWishlist(
       req.user.userId,
       productId,

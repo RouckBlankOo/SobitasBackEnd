@@ -6,6 +6,7 @@ import {
   Request,
   Req,
   Res,
+  Put,
 } from '@nestjs/common';
 import type {
   Response as ExpressResponse,
@@ -14,6 +15,7 @@ import type {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -95,6 +97,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async validate(@Request() req) {
     return this.authService.validateUser(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('update-profile')
+  async updateProfile(@Request() req, @Body() dto: UpdateProfileDto) {
+    console.log('Update Profile Request:', req.user.userId, dto);
+    // req.user is populated by JwtAuthGuard (contains userId)
+    const updated = await this.authService.updateProfile(req.user.userId, dto);
+    return updated;
   }
 
   @Post('register')

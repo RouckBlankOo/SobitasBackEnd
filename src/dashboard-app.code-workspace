@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "../../../sobitas-dashboardFB/dashboard-app"
+		},
+		{
+			"path": "../../../sobitas-dashboardFB/sobitas_next-main"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../protien_admin_ancien-main"
+		}
+	],
+	"settings": {
+		"chat.agent.maxRequests": 250
+	}
+}

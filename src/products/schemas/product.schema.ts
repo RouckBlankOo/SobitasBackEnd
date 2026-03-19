@@ -62,8 +62,8 @@ export class Product {
   @Prop([String])
   features?: string[];
 
-  @Prop([String])
-  aroma_ids?: string[];
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Aroma' }], default: [] })
+  aroma_ids?: Types.ObjectId[];
 
   // Support both ObjectId reference and string for backward compatibility
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Brand' })

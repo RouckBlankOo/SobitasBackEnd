@@ -1,59 +1,27 @@
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsBoolean,
-  IsNumber,
-  IsUrl,
-} from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateServiceDto {
-  @IsNotEmpty()
-  @IsString()
-  designation_fr: string;
+    @IsString()
+    @IsOptional()
+    title: string;
 
-  @IsOptional()
-  @IsString()
-  designation_en?: string;
+    @IsString()
+    @IsOptional()
+    description: string;
 
-  @IsOptional()
-  @IsString()
-  description_fr?: string;
+    @IsString()
+    @IsOptional()
+    icon: string;
 
-  @IsOptional()
-  @IsString()
-  description_en?: string;
+    @IsString()
+    @IsOptional()
+    image: string;
 
-  @IsOptional()
-  @IsString()
-  icon?: string;
+    @IsNumber()
+    @IsOptional()
+    order: number;
 
-  @IsOptional()
-  image?: {
-    url: string;
-    alt?: string;
-  };
-
-  @IsOptional()
-  @IsString()
-  bgColor?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
-  status?: boolean = true;
-
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  order?: number;
-
-  @IsOptional()
-  @IsString()
-  link?: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
+    @IsBoolean()
+    @IsOptional()
+    active: boolean;
 }

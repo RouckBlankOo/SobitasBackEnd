@@ -124,4 +124,16 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  appliedPromoCode?: string;
+
+  @IsOptional()
+  @IsString()
+  referralSource?: string;
+
+  @IsOptional()
+  @IsString()
+  coachId?: string;
 }

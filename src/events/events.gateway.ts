@@ -16,8 +16,6 @@ import { Logger } from '@nestjs/common';
       process.env.ECOMMERCE_FRONTEND_URL || 'http://localhost:3002',
       'http://localhost:3001', // Dashboard Admin (Next.js)
       'http://localhost:3002', // E-commerce frontend (Next.js sobitas_next-main)
-      'http://localhost:3000', // SobitasProject (Vite)
-      'http://localhost:8080', // Alternative Vite dev server
       'https://admin.protein.tn',
       'https://protein.tn',
     ],

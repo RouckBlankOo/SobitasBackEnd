@@ -41,6 +41,12 @@ export class Blog {
   @Prop({ type: [String], default: [] })
   tags: string[];
 
+  @Prop()
+  category?: string;
+
+  @Prop()
+  reading_time?: string;
+
   @Prop({ default: 0 })
   views: number;
 }

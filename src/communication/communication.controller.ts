@@ -10,7 +10,7 @@ export class CommunicationController {
 
   @Post('email')
   async sendEmail(
-    @Body() body: { to: string; subject: string; content: string },
+    @Body() body: { to: string | string[]; subject: string; content: string },
   ) {
     return this.communicationService.sendEmail(
       body.to,
@@ -20,7 +20,7 @@ export class CommunicationController {
   }
 
   @Post('sms')
-  async sendSMS(@Body() body: { phone: string; message: string }) {
+  async sendSMS(@Body() body: { phone: string | string[]; message: string }) {
     return this.communicationService.sendSMS(body.phone, body.message);
   }
 }

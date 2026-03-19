@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Aroma, AromaDocument } from './schemas/aroma.schema';
+import { Product } from '../products/schemas/product.schema';
 import { CreateAromaDto } from './dto/create-aroma.dto';
 import { UpdateAromaDto } from './dto/update-aroma.dto';
 
@@ -9,6 +10,7 @@ import { UpdateAromaDto } from './dto/update-aroma.dto';
 export class AromasService {
   constructor(
     @InjectModel(Aroma.name) private aromaModel: Model<AromaDocument>,
+    @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
   async create(createAromaDto: CreateAromaDto): Promise<Aroma> {
@@ -47,5 +49,10 @@ export class AromasService {
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Aroma with ID ${id} not found`);
     }
+    // Clean up orphaned references in products
+    await this.productModel.updateMany(
+      { aroma_ids: id },
+      { $pull: { aroma_ids: id } },
+    );
   }
 }

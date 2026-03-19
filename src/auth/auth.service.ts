@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { UserRole } from '../users/schemas/user.schema';
+import { User, UserRole } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -101,6 +101,33 @@ export class AuthService {
 
   async validateUser(userId: string) {
     return this.usersService.findById(userId);
+  }
+
+  // Update the authenticated user's profile
+  async updateProfile(userId: string, data: Partial<User>) {
+    // Only allow fields that exist on the schema
+    const allowed = [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'address',
+      'city',
+    ];
+    const update: any = {};
+    for (const key of allowed) {
+      if (data[key as keyof User] !== undefined) {
+        update[key] = data[key as keyof User];
+      }
+    }
+    // If a combined username is sent, split it
+    if ((data as any).username) {
+      const parts = (data as any).username.split(' ');
+      update.firstName = parts[0];
+      update.lastName = parts.slice(1).join(' ');
+    }
+    const updated = await this.usersService.update(userId, update);
+    return updated;
   }
 
   async register(createUserDto: any) {

@@ -5,6 +5,7 @@ import {
   IsArray,
   IsObject,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateBlogDto {
   @IsString()
@@ -40,6 +41,10 @@ export class CreateBlogDto {
 
   @IsBoolean()
   @IsOptional()
+  @Transform(
+    ({ value }) =>
+      value === 'true' || value === true || value === '1' || value === 1,
+  )
   published?: boolean;
 
   @IsString()
@@ -48,5 +53,23 @@ export class CreateBlogDto {
 
   @IsArray()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      // Split if it's a comma-separated string, or return as single element array
+      return value.includes(',') ? value.split(',').map(v => v.trim()) : [value];
+    }
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value;
+  })
   tags?: string[];
+
+  @IsString()
+  @IsOptional()
+  category?: string;
+
+  @IsString()
+  @IsOptional()
+  reading_time?: string;
 }

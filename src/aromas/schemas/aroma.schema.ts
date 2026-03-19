@@ -19,9 +19,6 @@ export class Aroma {
 
   @Prop({ default: true })
   active: boolean;
-
-  @Prop({ type: [String], default: [] })
-  products: string[];
 }
 
 export const AromaSchema = SchemaFactory.createForClass(Aroma);

@@ -93,6 +93,21 @@ export class Order {
 
   @Prop({ default: Date.now })
   orderDate: Date;
+
+  @Prop()
+  appliedPromoCode?: string;
+
+  @Prop({ default: 0 })
+  discountAmount?: number;
+
+  @Prop({ type: String })
+  coachId?: string;
+
+  @Prop({ default: 0 })
+  coachCommissionAmount?: number;
+
+  @Prop({ type: String, enum: ['code', 'link'], default: 'code' })
+  referralSource?: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

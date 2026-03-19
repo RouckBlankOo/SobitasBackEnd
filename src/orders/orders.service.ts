@@ -4,15 +4,69 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument, OrderStatus } from './schemas/order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { CoachesService } from '../coaches/coaches.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
-  ) {}
+    private readonly coachesService: CoachesService,
+  ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const createdOrder = new this.orderModel(createOrderDto);
+    const orderData: any = { ...createOrderDto };
+
+    // Generate a unique tracking number
+    const trackingNumber = `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    orderData.trackingNumber = trackingNumber;
+
+    if (createOrderDto.appliedPromoCode) {
+      try {
+        const coach = await this.coachesService.findByPromoCode(createOrderDto.appliedPromoCode);
+
+        // Calculate subtotal from items before discount
+        const subtotal = createOrderDto.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        // 10% discount for customer (standard Gymshark/Sobitas structure)
+        const discountAmount = subtotal * 0.1;
+        orderData.discountAmount = discountAmount;
+        orderData.totalAmount = (subtotal - discountAmount) + (createOrderDto.shippingCost || 0);
+
+        // Commission based on coach tier (Standard: 10%, Athlete: 15%, Pro: 20%)
+        const rate = this.coachesService.getCommissionRate((coach as any).coachTier);
+        const commissionAmount = subtotal * rate;
+
+        orderData.coachId = (coach as any)._id.toString();
+        orderData.coachCommissionAmount = commissionAmount;
+        orderData.referralSource = createOrderDto.referralSource || 'code';
+
+      } catch (error) {
+        // If promo code is invalid, continue without discount
+        console.error('Invalid promo code provided:', createOrderDto.appliedPromoCode);
+      }
+    }
+
+    // Handle link-based referral (no promo code) if not already handled by code
+    if (!orderData.coachId && createOrderDto.coachId) {
+      try {
+        const coach = await this.coachesService.getAllCoaches().then(coaches =>
+          coaches.find(c => (c as any)._id.toString() === createOrderDto.coachId)
+        );
+
+        if (coach) {
+          const subtotal = createOrderDto.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const rate = this.coachesService.getCommissionRate((coach as any).coachTier);
+
+          orderData.coachId = createOrderDto.coachId;
+          orderData.coachCommissionAmount = subtotal * rate;
+          orderData.referralSource = 'link';
+        }
+      } catch (error) {
+        console.error('Failed to process link-based referral:', error);
+      }
+    }
+
+    const createdOrder = new this.orderModel(orderData);
     return await createdOrder.save();
   }
 
@@ -136,5 +190,25 @@ export class OrdersService {
 
   async getRecentOrders(limit: number = 10): Promise<Order[]> {
     return this.orderModel.find().sort({ createdAt: -1 }).limit(limit).exec();
+  }
+
+  async trackOrder(id: string, email: string): Promise<Order> {
+    // Try to find by _id first, then by trackingNumber if id doesn't look like an ObjectId
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+
+    const query: any = { customerEmail: email };
+    if (isObjectId) {
+      query.$or = [{ _id: id }, { trackingNumber: id }];
+    } else {
+      query.trackingNumber = id;
+    }
+
+    const order = await this.orderModel.findOne(query).exec();
+
+    if (!order) {
+      throw new NotFoundException(`Commande introuvable avec l'ID/Suivi "${id}" et l'email "${email}"`);
+    }
+
+    return order;
   }
 }

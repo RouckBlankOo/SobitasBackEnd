@@ -20,13 +20,26 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   // Public endpoint for e-commerce checkout
   @Post()
   @ApiOperation({ summary: 'Create new order' })
   async create(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
+  }
+
+  @Get('track')
+  @ApiOperation({ summary: 'Track order status (Public)' })
+  async track(
+    @Query('id') id: string,
+    @Query('email') email: string,
+  ) {
+    if (!id || !email) {
+      // Just in case validation fails, return empty or throw clear error
+      return null;
+    }
+    return this.ordersService.trackOrder(id, email);
   }
 
   // Admin endpoints

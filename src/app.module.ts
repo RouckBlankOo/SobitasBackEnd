@@ -13,9 +13,9 @@ import { ProductsModule } from './products/products.module';
 import { AdminModule } from './admin/admin.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { CommunicationModule } from './communication/communication.module';
-import { ServicesModule } from './services/services.module';
 import { OrdersModule } from './orders/orders.module';
 import { EventsModule } from './events/events.module';
+import { InvoicesModule } from './invoices/invoices.module';
 
 // Content Modules
 import { CategoriesModule } from './categories/categories.module';
@@ -27,7 +27,16 @@ import { BlogsModule } from './blogs/blogs.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { PagesModule } from './pages/pages.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { CoordinatesModule } from './coordinates/coordinates.module';
+import { TagsModule } from './tags/tags.module';
+import { SlidesModule } from './slides/slides.module';
+import { ServicesModule } from './services/services.module';
+import { AnnoncesModule } from './annonces/annonces.module';
+import { CoachesModule } from './coaches/coaches.module';
 import { SeedModule } from './database/seeds/seed.module';
+import { FaqsModule } from './faqs/faqs.module';
+import { LoyaltyModule } from './loyalty/loyalty.module';
+import { PacksModule } from './packs/packs.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -41,7 +50,7 @@ import { AppService } from './app.service';
 
     // Database with connection logging
     MongooseModule.forRootAsync({
-      useFactory: async () => {
+      useFactory: () => {
         const uri =
           process.env.MONGODB_URI || 'mongodb://localhost:27017/sobitas-db';
         console.log(
@@ -87,7 +96,11 @@ import { AppService } from './app.service';
 
     // Static file serving
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: (() => {
+        const path = join(process.cwd(), 'uploads');
+        console.log('📂 Static file root path:', path);
+        return path;
+      })(),
       serveRoot: '/uploads',
     }),
 
@@ -98,9 +111,10 @@ import { AppService } from './app.service';
     AdminModule,
     StatisticsModule,
     CommunicationModule,
-    ServicesModule,
     OrdersModule,
     EventsModule,
+    InvoicesModule,
+    CoachesModule,
 
     // Content modules
     CategoriesModule,
@@ -112,6 +126,14 @@ import { AppService } from './app.service';
     NewsletterModule,
     PagesModule,
     ContactsModule,
+    CoordinatesModule,
+    TagsModule,
+    SlidesModule,
+    ServicesModule,
+    AnnoncesModule,
+    FaqsModule,
+    LoyaltyModule,
+    PacksModule,
 
     // Database seeding
     SeedModule,

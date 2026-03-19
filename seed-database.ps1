@@ -1,6 +1,6 @@
 # Script to seed the Sobitas database
 
-$API_URL = "http://localhost:3001/api"
+$API_URL = "http://localhost:3003/api"
 
 Write-Host "Starting database seeding..." -ForegroundColor Cyan
 Write-Host ""

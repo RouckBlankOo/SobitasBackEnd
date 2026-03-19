@@ -37,6 +37,42 @@ export class Subcategory {
 
   @Prop()
   meta_description?: string;
+
+  @Prop()
+  alt_cover?: string;
+
+  @Prop()
+  description_cover?: string;
+
+  @Prop()
+  meta?: string;
+
+  @Prop()
+  content_seo?: string;
+
+  @Prop()
+  review?: string;
+
+  @Prop()
+  aggregateRating?: string;
+
+  @Prop()
+  nutrition_values?: string;
+
+  @Prop()
+  questions?: string;
+
+  @Prop()
+  more_details?: string;
+
+  @Prop()
+  zone1?: string;
+
+  @Prop()
+  zone2?: string;
+
+  @Prop()
+  zone3?: string;
 }
 
 export const SubcategorySchema = SchemaFactory.createForClass(Subcategory);

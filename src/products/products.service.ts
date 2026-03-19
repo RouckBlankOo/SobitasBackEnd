@@ -123,6 +123,7 @@ export class ProductsService {
       .populate('brand')
       .populate('category')
       .populate('subCategory')
+      .populate('aroma_ids')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
@@ -150,7 +151,7 @@ export class ProductsService {
       throw new BadRequestException(`Invalid product ID format: "${id}"`);
     }
 
-    const product = await this.productModel.findById(id).exec();
+    const product = await this.productModel.findById(id).populate('brand').populate('aroma_ids').exec();
     if (!product) {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
@@ -158,7 +159,7 @@ export class ProductsService {
   }
 
   async findBySlug(slug: string): Promise<Product> {
-    const product = await this.productModel.findOne({ slug }).exec();
+    const product = await this.productModel.findOne({ slug }).populate('brand').populate('aroma_ids').exec();
     if (!product) {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
     }
@@ -223,6 +224,18 @@ export class ProductsService {
   async getFeaturedProducts(limit: number = 6): Promise<Product[]> {
     return this.productModel
       .find({ status: true, inStock: true })
+      .populate('brand')
+      .populate('aroma_ids')
+      .sort({ aggregateRating: -1 })
+      .limit(limit)
+      .exec();
+  }
+
+  async getFeaturedPacks(limit: number = 6): Promise<Product[]> {
+    return this.productModel
+      .find({ type: 'pack', status: true, inStock: true })
+      .populate('brand')
+      .populate('aroma_ids')
       .sort({ aggregateRating: -1 })
       .limit(limit)
       .exec();
@@ -303,6 +316,7 @@ export class ProductsService {
       .populate('brand')
       .populate('category')
       .populate('subCategory')
+      .populate('aroma_ids')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
@@ -357,6 +371,7 @@ export class ProductsService {
       .populate('brand')
       .populate('category')
       .populate('subCategory')
+      .populate('aroma_ids')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
